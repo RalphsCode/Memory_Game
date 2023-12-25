@@ -2,6 +2,7 @@ const gameContainer = document.getElementById("game");
 const showClicksEl = document.getElementById("clickCount");
 const recordEl = document.getElementById("record");
 let flipCounter = 0, flips = [], clickCount = 0;
+const resetBtn = "  <button class = 'button' id='reset score'>Reset Record</button>";
 
 const COLORS = [
   "red",
@@ -57,9 +58,9 @@ function createDivsForColors(colorArray) {
   }
 }
 
-// Call function that creates the Restart Button
+// Call functions that handle onscreen buttons
 restartGame();
-recordReset()
+recordReset();
 
 
 // Function to handle a card click
@@ -128,19 +129,22 @@ function nextRound(){
     //  Locate all the unMatched cards
     const unmatchedCards = gameContainer.querySelectorAll(':not(.matched');
     console.log(`unmatched cards: ${unmatchedCards.length}`);
+    if (unmatchedCards.length == 0){
+      // If all matches discovered; check the score vs the record
+      record();
+      }  // END if...
       // If 2 cards have been flipped
-      if (flipCounter == 2){
+    else if (flipCounter == 2){
         // Turn off all click event listeners
         for (var t = 0; t < unmatchedCards.length; t++) {
           unmatchedCards[t].removeEventListener('click', handleCardClick);
         }  // END for loop
         // Wait a second then reset the unmatched cards
         setTimeout(resetCards, 1000);
-
         // flip cards back (reset them) & add back the click eventListener
         function resetCards() {
           for (var i = 0; i < unmatchedCards.length; i++) {
-            unmatchedCards[i].style.backgroundColor = 'white';
+            unmatchedCards[i].style.backgroundColor = '#c5f1fe';
             unmatchedCards[i].addEventListener('click', handleCardClick);
           }  // END for loop...
         }  // END resetCards()
@@ -148,14 +152,10 @@ function nextRound(){
     //  Reset the flip count, and the array of flipped cards
     flipCounter = 0;
     flips = [];
-    if (unmatchedCards.length == 0){
-        // If all matches discovered; check the score vs the record
-        record();
-    }  // END if...
 }  // END nextRound()
 
 
-// Function to set or update Local Storage
+// Function to set or update the low score in Local Storage
 function record(){
   let record = localStorage.getItem('record');
   console.log(`record from local Storage = ${record}`)
@@ -163,11 +163,11 @@ function record(){
       if (clickCount <= record) {
       record = clickCount
       localStorage.setItem("record", clickCount);
-      recordEl.innerHTML = `   - Record: ${record} <button class = 'button' id='reset score'>Reset Record</button>`;
+      recordEl.innerHTML = `   - Record: ${record}${resetBtn}`;
       window.alert(`NEW RECORD - ${clickCount}!!!`);
     }}
   else { localStorage.setItem("record", clickCount);
-    recordEl.innerHTML += `   - Record: ${clickCount} <button class = 'button' id='reset score'>Reset Record</button>`;
+    recordEl.innerHTML += `   - Record: ${clickCount}${resetBtn}`;
 
   } // END else...
 } // END record()
@@ -181,7 +181,7 @@ function restartGame() {
   restartBtn.addEventListener('click', function() {
     location.reload()}) ;
     if (localStorage.getItem('record')) {
-      recordEl.innerHTML += `   - Record: ${localStorage.getItem('record')}<button class = 'button' id='reset score'>Reset Record</button>`;
+      recordEl.innerHTML += `   - Record: ${localStorage.getItem('record')}${resetBtn}`;
     } // END if...
 }   // END restartGame()
 
@@ -190,7 +190,7 @@ function restartGame() {
 function recordReset(){
   // Check that there is a record to clear
   if (localStorage.getItem('record')){
-    // Fine the reset btn and add click listener
+    // Find the reset btn and add click listener
     const scoreResetBtn = document.getElementById('reset score');
     scoreResetBtn.addEventListener('click', function(){
     // Remove the record from Local Storage
